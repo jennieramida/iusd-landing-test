@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router"
 import styles from "./NavBar.module.css"
+
+import { ExternalLink } from "~/components/ExternalLink"
 
 const menu = [
   { label: "Docs", path: "https://strat-web-app.pages.dev/vault" },
@@ -22,9 +23,9 @@ export function NavBar() {
           {menu
             .filter((item) => item.label !== "Launch App")
             .map((item) => (
-              <Link key={item.label} to={item.path} className={styles.link}>
+              <ExternalLink key={item.label} href={item.path} className={styles.link}>
                 {item.label}
-              </Link>
+              </ExternalLink>
             ))}
         </nav>
 

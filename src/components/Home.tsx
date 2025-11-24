@@ -2,15 +2,8 @@ import gsap from "gsap"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef } from "react"
 import { useWindowSize } from "usehooks-ts"
-import { createFileRoute } from "@tanstack/react-router"
-import styles from "./index.module.css"
-
-import { NavBar } from "~/components/NavBar"
-
-export const Route = createFileRoute("/")({
-  component: Home,
-})
-
+import { NavBar } from "./NavBar"
+import styles from "./Home.module.css"
 // Helper functions
 const clamp = (min: number, value: number, max: number) => Math.min(Math.max(value, min), max)
 
@@ -38,7 +31,7 @@ const TokenPattern = () => {
   )
 }
 
-function Home() {
+export function Home() {
   // Scene 1 + 2
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -61,8 +54,46 @@ function Home() {
   const pathRef = useRef<SVGPathElement>(null)
   const circleRef = useRef<HTMLDivElement>(null)
 
-  const animationPlayed = useRef(false)
   const { height: windowHeight = 0, width: windowWidth = 0 } = useWindowSize()
+
+  useEffect(() => {
+    // Set initial states
+    if (navBarRef.current) {
+      gsap.set(navBarRef.current, { y: -100, opacity: 0 })
+    }
+    if (titleContainerRef.current) {
+      gsap.set(titleContainerRef.current, { opacity: 0, y: 60 })
+    }
+
+    // Create timeline
+    const timeline = gsap.timeline({ delay: 0.5 })
+
+    timeline.to(
+      navBarRef.current,
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: "power2.out",
+      },
+      0,
+    )
+
+    timeline.to(
+      titleContainerRef.current,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power2.out",
+      },
+      0.2,
+    )
+
+    return () => {
+      timeline.kill()
+    }
+  }, [])
 
   useLenis(
     ({ scroll }) => {
@@ -384,32 +415,6 @@ function Home() {
     [windowHeight, windowWidth],
   )
 
-  useEffect(() => {
-    if (animationPlayed.current) return
-
-    const timeline = gsap.timeline({ delay: 0.5 })
-
-    timeline.fromTo(
-      navBarRef.current,
-      { y: -100, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
-      "-=0.8",
-    )
-
-    timeline.fromTo(
-      titleContainerRef.current,
-      { opacity: 0, y: 60 },
-      { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
-      "-=0.6",
-    )
-
-    animationPlayed.current = true
-
-    return () => {
-      timeline.kill()
-    }
-  }, [])
-
   return (
     <div className={styles.container} ref={containerRef}>
       <div ref={navBarRef} className={styles.navBarWrapper}>
@@ -493,5 +498,3 @@ function Home() {
     </div>
   )
 }
-
-export default Home

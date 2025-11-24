@@ -1,10 +1,11 @@
 import { ReactLenis } from "lenis/react"
 
-interface LenisProps {
-  children?: React.ReactNode
-}
+import type { ReactNode } from "react"
 
-// eslint-disable-next-line iusd/react-props-interface
-export function Lenis({ children }: LenisProps) {
-  return <ReactLenis root>{children}</ReactLenis>
+export function Lenis({ children }: { children: ReactNode }) {
+  return (
+    <ReactLenis root options={{ lerp: 0.1, duration: 1.2 }}>
+      {children}
+    </ReactLenis>
+  )
 }
