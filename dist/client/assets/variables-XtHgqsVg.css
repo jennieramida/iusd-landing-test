@@ -1,0 +1,39 @@
+:root {
+  --gray-0: #f5f5f5;
+  --gray-1: #d1d9e0;
+  --gray-2: #a1a6aa;
+  --gray-3: #757c82;
+  --gray-4: #585f67;
+  --gray-5: #383d42;
+  --gray-6: #2f3337;
+  --gray-7: #242629;
+  --gray-8: #1b1c1d;
+  --gray-9: #101010;
+  --primary-lighter: #cce2ed;
+  --primary-light: #a9e3ff;
+  --primary: #6ac6f7;
+  --primary-dark: #276c91;
+  --primary-bg: #122327;
+  --green-lighter: #ceeee1;
+  --green-light: #84ffbb;
+  --green: #33f88f;
+  --green-dark: #1ea95f;
+  --green-bg: #172a1b;
+  --red-lighter: #eecece;
+  --red-light: #ff8f8f;
+  --red: #f75252;
+  --red-dark: #9d2d2d;
+  --red-bg: #2a1515;
+  --button-bg-gradient-primary: linear-gradient(
+    to right,
+    var(--primary),
+    var(--primary-light),
+    var(--primary)
+  );
+  --button-bg-gradient-primary-hover: linear-gradient(
+    to right,
+    var(--primary-light),
+    var(--primary-lighter),
+    var(--primary-light)
+  );
+}
