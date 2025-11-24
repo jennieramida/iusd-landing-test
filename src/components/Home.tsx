@@ -2,6 +2,7 @@ import gsap from "gsap"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef } from "react"
 import { useWindowSize } from "usehooks-ts"
+import { Footer } from "./Footer"
 import { NavBar } from "./NavBar"
 import styles from "./Home.module.css"
 // Helper functions
@@ -45,14 +46,18 @@ export function Home() {
   const lineTopRef = useRef<HTMLDivElement>(null)
   const lineBottomRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const ctaRef = useRef<HTMLDivElement>(null)
+  const overlayContentRef = useRef<HTMLDivElement>(null)
+  const ctaWrapperRef = useRef<HTMLDivElement>(null)
 
   // Scene 5
   const contentSectionRef = useRef<HTMLDivElement>(null)
 
   // Scene 6
   const pathRef = useRef<SVGPathElement>(null)
-  const circleRef = useRef<HTMLDivElement>(null)
+
+  // Scene 7
+  const initLogoRef = useRef<HTMLImageElement>(null)
+  const iusdLogoRef = useRef<HTMLImageElement>(null)
 
   const { height: windowHeight = 0, width: windowWidth = 0 } = useWindowSize()
 
@@ -99,6 +104,7 @@ export function Home() {
     ({ scroll }) => {
       if (scroll < 10) return
 
+      // console.log("scrollll", scroll)
       // Set scenes
       const scrollStart = 0
       const scrollEnd = 1.5 * windowHeight
@@ -122,8 +128,12 @@ export function Home() {
       const progress5 = clamp(0, mapRange(scrollPhase5Start, scrollPhase5End, scroll, 0, 1), 1)
 
       const scrollPhase6Start = scrollPhase5End
-      const scrollPhase6End = scrollPhase6Start + windowHeight // Make it longer for the circle animation
+      const scrollPhase6End = scrollPhase6Start + windowHeight
       const progress6 = clamp(0, mapRange(scrollPhase6Start, scrollPhase6End, scroll, 0, 1), 1)
+
+      const scrollPhase7Start = scrollPhase6End
+      const scrollPhase7End = scrollPhase7Start + 1 * windowHeight
+      const progress7 = clamp(0, mapRange(scrollPhase7Start, scrollPhase7End, scroll, 0, 1), 1)
 
       // iUSD scene 1 + 2
       if (iusdTextRef.current) {
@@ -368,7 +378,7 @@ export function Home() {
 
         gsap.set(video, {
           opacity,
-          y: -progress5 * 300,
+          // y: -progress5 * 300,
         })
 
         if (video.duration) {
@@ -381,34 +391,92 @@ export function Home() {
         }
       }
 
-      // CTA
-      if (ctaRef.current) {
+      // CTA Wrapper - sticks after progress7
+      if (overlayContentRef.current) {
         const ctaStart = 0.3
         const ctaProgress = progress4 < ctaStart ? 0 : mapRange(ctaStart, 1, progress4, 0, 1)
-
         const ctaOpacity = ctaProgress
-        const ctaY = (1 - ctaProgress) * 100 - progress5 * 300 - progress6 * 500
 
-        gsap.to(ctaRef.current, {
+        // Calculate movement up to progress7, then stop
+        let ctaY = (1 - ctaProgress) * 100 - progress5 * 300 - progress6 * 500
+
+        // Only move during progress7, then lock in place
+        if (progress7 > 0 && progress7 < 1) {
+          ctaY -= progress7 * 500
+        } else if (progress7 >= 1) {
+          ctaY -= 500 // Locked at final position
+        }
+
+        gsap.to(overlayContentRef.current, {
           opacity: ctaOpacity,
           y: ctaY,
           duration: 0.1,
           ease: "none",
         })
       }
+      if (ctaWrapperRef.current && overlayContentRef.current && contentSectionRef.current) {
+        const scaleAmount = 1 - progress5 * 0.3 - progress6 * 0.3
+        const padding = 24 * scaleAmount
+
+        // const overlayRect = overlayContentRef.current.getBoundingClientRect()
+        // const overlayTop = overlayRect.top
+
+        // const stickyOffset = overlayTop > 120 ? 0 : 120 - overlayTop
+
+        gsap.to(ctaWrapperRef.current, {
+          fontSize: `${8 * scaleAmount}vw`,
+          paddingTop: `${padding}px`,
+          paddingBottom: `${padding}px`,
+          // y: stickyOffset,
+          duration: 0.1,
+          ease: "none",
+        })
+
+        // Move contentSection up by the same amount to compensate
+        gsap.to(contentSectionRef.current, {
+          // y: -stickyOffset,
+          duration: 0.1,
+          ease: "none",
+        })
+      }
 
       // --- Phase 5/6: Animate circle along path ---
-      // --- Phase 5/6: Animate circle along path (without MotionPathPlugin) ---
-      if (circleRef.current && pathRef.current) {
-        const pathProgress = progress5
-        const pathLength = pathRef.current.getTotalLength()
-        const point = pathRef.current.getPointAtLength(pathProgress * pathLength)
+      // if (circleRef.current && pathRef.current) {
+      //   const pathProgress = progress5
+      //   const pathLength = pathRef.current.getTotalLength()
+      //   const point = pathRef.current.getPointAtLength(pathProgress * pathLength)
 
-        gsap.set(circleRef.current, {
-          x: point.x,
-          y: point.y,
-          xPercent: -50,
-          yPercent: -50,
+      //   gsap.set(circleRef.current, {
+      //     x: point.x,
+      //     y: point.y,
+      //     xPercent: -50,
+      //     yPercent: -50,
+      //   })
+      // }
+      // Phase 8: Animate init and iusd logos - start later in progress8
+      if (initLogoRef.current && iusdLogoRef.current) {
+        // const tokenProgress = progress7 < tokenStart ? 0 : mapRange(tokenStart, 1, progress7, 0, 1)
+
+        const moveDistance = progress7 * 140
+        const yOffset = -progress7 * 50
+        const scale = 1 + progress7 * 0.1
+
+        // Init logo moves right
+        gsap.to(initLogoRef.current, {
+          x: moveDistance,
+          y: yOffset,
+          scale,
+          duration: 0.1,
+          ease: "none",
+        })
+
+        // iUSD logo moves left
+        gsap.to(iusdLogoRef.current, {
+          x: -moveDistance,
+          y: yOffset,
+          scale,
+          duration: 0.1,
+          ease: "none",
         })
       }
     },
@@ -425,12 +493,10 @@ export function Home() {
         <div ref={tokenWrapperTopRef}>
           <TokenPattern />
         </div>
-
         {/* iUSD text that fades in */}
         <div className={styles.iusdText} ref={iusdTextRef} style={{ opacity: 0 }}>
           iUSD
         </div>
-
         <div ref={titleContainerRef} className={styles.titleWrapper}>
           <div ref={lineTopRef} className={styles.divider} />
           <div className={styles.title} ref={titleRef}>
@@ -454,8 +520,10 @@ export function Home() {
           className={styles.video}
         />
       </div>
-      <div ref={ctaRef} className={styles.ctaWrapper}>
-        <div className={styles.cta}>GET iUSD NOW</div>
+      <div ref={overlayContentRef} className={styles.overlayContent}>
+        <div ref={ctaWrapperRef} className={styles.ctaWrapper}>
+          GET iUSD NOW
+        </div>
         <div ref={contentSectionRef} className={styles.contentSection}>
           <div className={styles.featureSection}>
             <div className={styles.featureContentLeft}>
@@ -493,6 +561,26 @@ export function Home() {
               </p>
             </div>
           </div>
+          <div className={styles.statTokenWrapper}>
+            <img ref={initLogoRef} src="/init.svg" alt="Init Logo" className={styles.init} />
+            <img ref={iusdLogoRef} src="/iusd.svg" alt="iUSD Logo" className={styles.iusd} />
+          </div>
+
+          <div className={styles.statWrapper}>
+            <div className={styles.stat}>
+              <div className={styles.number}>31.49%</div>
+              <div className={styles.label}>iNIT APY</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={styles.number}>$5,908,034</div>
+              <div className={styles.label}>Total TVL</div>
+            </div>
+            <div className={styles.stat}>
+              <div className={styles.number}>$17,885,908</div>
+              <div className={styles.label}>Protocol TVL</div>
+            </div>
+          </div>
+          <Footer />
         </div>
       </div>
     </div>

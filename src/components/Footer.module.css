@@ -1,0 +1,55 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.footerUpper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  padding: 0px 32px;
+
+  .tagline {
+    color: #fff;
+    font-size: 3vw;
+    max-width: 400px;
+  }
+}
+
+.footerImage {
+  width: 100vw;
+  /* height: 320px; */
+}
+
+.linkWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.linkRow {
+  display: flex;
+  gap: 80px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  width: 180px;
+
+  .bullet {
+    width: 6px;
+    height: 6px;
+
+    background-color: #fff;
+  }
+
+  .linkLabel {
+    color: #fff;
+    font-size: 1.5vw;
+  }
+}
